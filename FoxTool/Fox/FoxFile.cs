@@ -21,7 +21,7 @@ namespace FoxTool.Fox
         private readonly List<FoxStringLookupLiteral> _stringLookupLiterals;
         private string _fileVersion = "0";
         private string _formatVersion = "2";
-        
+        private DateTime _originalVersion = DateTime.Now;
 
         public FoxFile()
         {
@@ -57,7 +57,12 @@ namespace FoxTool.Fox
             set { _fileVersion = value; }
         }
 
-        
+        public DateTime OriginalVersion
+        {
+            get { return _originalVersion; }
+            set { _originalVersion = value; }
+        }
+
         public XmlSchema GetSchema()
         {
             return null;
@@ -71,7 +76,7 @@ namespace FoxTool.Fox
             DateTime.TryParseExact(reader.GetAttribute("originalVersion"), "ddd MMM dd HH:mm:ss UTCzzz yyyy",
                 CultureInfo.InvariantCulture,
                 DateTimeStyles.None, out originalVersion);
-            
+            OriginalVersion = originalVersion;
 
             bool isEmptyElement = reader.IsEmptyElement;
             reader.ReadStartElement("fox");
@@ -111,6 +116,10 @@ namespace FoxTool.Fox
             writer.WriteAttributeString("formatVersion", FormatVersion);
             writer.WriteAttributeString("fileVersion", FileVersion);
             
+            //NasaNhak - let us not output current time to avoid having a different xml generated everytime
+            //writer.WriteAttributeString("originalVersion",
+               //String.Format(CultureInfo.InvariantCulture, "{0:ddd MMM dd HH:mm:ss UTCzzz yyyy}", OriginalVersion));
+
             writer.WriteStartElement("classes");
             foreach (var foxClass in Classes)
             {
@@ -238,7 +247,7 @@ namespace FoxTool.Fox
             {
                 foxEntity.Write(output);
             }
-            int offsetHashMap = (int) output.Position;
+            int offsetHashMap = (int)output.Position;
             foreach (var foxStringLookupLiteral in StringLookupLiterals)
             {
                 // TODO: Write the encrypted file name.
@@ -248,7 +257,7 @@ namespace FoxTool.Fox
 
             writer.Write((long)0);
             output.AlignWrite(16, 0x00);
-            writer.Write(new byte[] {0x00, 0x00, 0x65, 0x6E, 0x64});
+            writer.Write(new byte[] { 0x00, 0x00, 0x65, 0x6E, 0x64 });
             output.AlignWrite(16, 0x00);
 
             long endPosition = output.Position;
