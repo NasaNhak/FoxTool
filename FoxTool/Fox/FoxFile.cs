@@ -210,7 +210,7 @@ namespace FoxTool.Fox
             }
             input.AlignRead(16);
             reader.Skip(2);
-            string eof = reader.ReadString(3);
+            byte[] eof = reader.ReadBytes(3);
             input.AlignRead(16);
         }
 
@@ -232,7 +232,9 @@ namespace FoxTool.Fox
                 if (localLookupTable.ContainsKey(literal.Hash.HashValue) == false)
                 {
                     if (literal.IsEncrypted == false)
+                    {
                         localLookupTable.Add(literal.Hash.HashValue, literal.Literal);
+                    }
                 }
             }
             return localLookupTable;
